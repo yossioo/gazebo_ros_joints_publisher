@@ -5,11 +5,6 @@
 
 using namespace gazebo;
 
-void print(std::string str)
-{
-    std::cout << str << std::endl;
-}
-
 void JoinStatePublisher::Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 {
     this->model = _parent;
@@ -18,7 +13,7 @@ void JoinStatePublisher::Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr
     std::string joint_names;
     if (sdf->HasElement("publish_selected_only"))
     {
-        if (this->sdf->Get<int>("publish_selected_only"))
+        if (this->sdf->Get<bool>("publish_selected_only"))
         {
             publish_selected_only = true;
         }
@@ -44,11 +39,10 @@ void JoinStatePublisher::Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr
         }
     }
     if( publish_selected_only){
-        std::cout << "Publishing only the following joints:" << std::endl;
-        std::cout << joint_names << std::endl;
+        DebugMessage("Publishing only the following joints:" + joint_names);
     }
     else {
-        std::cout << "Publishing all available joints:" << std::endl;
+        DebugMessage("Publishing all available joints.");
 
     }
     physics::Joint_V all_joints_vector = model->GetJoints();
@@ -73,17 +67,12 @@ void JoinStatePublisher::Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr
             }
             this->joints_vector.push_back(j);
         }
-        // print(j->GetName() + "Type: " + type);
     }
-
-    // print(sdf->ReferenceSDF());
-    // print(sdf->GetDescription());
-    // print(sdf->GetName());
     InitializeROSMembers();
 
     this->updateConnection = event::Events::ConnectWorldUpdateBegin(std::bind(&JoinStatePublisher::OnUpdate, this));
 
-    print("----- JoinStatePublisher loaded. -----");
+    DebugMessage("Plugin is loaded");
 }
 
 void JoinStatePublisher::OnUpdate()
@@ -95,8 +84,6 @@ void JoinStatePublisher::InitializeROSMembers()
 {
     if (!ros::isInitialized())
     {
-        print("----- !ros::isInitialized. -----");
-
         int argc = 0;
         char **argv = nullptr;
         ros::init(argc, argv, "JSP", ros::init_options::NoSigintHandler);
@@ -124,8 +111,6 @@ void JoinStatePublisher::InitializeROSMembers()
     {
         this->msg_joint_state.name.push_back(j->GetName());
     }
-
-    print("----- InitializeROSMembers done -----");
 }
 
 void JoinStatePublisher::timerCallback(const ros::TimerEvent &event)

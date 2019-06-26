@@ -11,6 +11,11 @@
 #include <std_msgs/String.h>
 #include <sensor_msgs/JointState.h>
 
+
+#define BLUE_TXT1 "\e[1;34m"
+#define NO_COLOR "\033[0m"
+
+
 namespace gazebo
 {
     class JoinStatePublisher : public ModelPlugin
@@ -29,6 +34,9 @@ namespace gazebo
         std::vector<double> j_pos, j_rate, j_effort;
         double alpha = 0.01;
 
+        // ROLL, PITCH, YAW, PAN, TILT and corresponding rates
+        double r,p,y,rr,pr,yr, pan, pan_r, tilt, tilt_r;
+
         // ROS members
         std::unique_ptr<ros::NodeHandle> rosNode_unique_ptr;
         // ros::NodeHandle *node_handle_;
@@ -40,6 +48,17 @@ namespace gazebo
         void timerCallback(const ros::TimerEvent &event);
         void ReadSimJointsData();
         double GetJointPosition(const physics::JointPtr joint, const double axis_index = 0);
+
+
+        void DebugMessage(const std::string Message, const std::string color = BLUE_TXT1, const bool set_no_color = true) {
+            std::string st = color + "[JointsPublisher] " +Message + NO_COLOR;
+            ROS_INFO("%s", st.c_str());
+        }
+
+        void DebugMessageERROR(const std::string Message) {
+            ROS_ERROR("%s", Message.c_str());
+        }
+
     };
 
     // Register this plugin with the simulator
