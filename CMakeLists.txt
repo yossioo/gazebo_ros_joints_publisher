@@ -72,3 +72,15 @@ include_directories(
 )
 
 link_directories(${GAZEBO_LIBRARY_DIRS})
+
+add_library(JointStatePublisher SHARED
+        include/JointStatePublisher/JointStatePublisher.cpp
+        include/JointStatePublisher/JointStatePublisher.h
+        )
+target_link_libraries(JointStatePublisher
+        ${GAZEBO_LIBRARIES}
+        ${catkin_LIBRARIES}
+        )
+
+install(TARGETS JointStatePublisher DESTINATION ${GAZEBO_PLUGIN_PATH})
+
